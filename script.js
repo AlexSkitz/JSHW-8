@@ -1,118 +1,154 @@
-// HW 1
-//makeProfileTimer
-//Напишите функцию makeProfileTimer, которая служит для замера 
-//времени выполнения другого кода и работает следующим образом:
-//alert должен вывести время в микросекундах от 
-//выполнения makeProfileTimer до момента вызова timer(), 
-// т. е. измерить время выполнения alert
+/*fetch basic
+С помощью следующего кода считать и вывести информацию о Люке Скайвокере:
+fetch('https://swapi.dev/api/people/1/')
+    .then(res => res.json())
+    .then(luke => console.log(luke))
+Напишите функцию для отображения любого JSON в форме таблицы.Функция должна принимать два параметра:
+DOM - элемент, в котором строится таблица
+JSON, который нужно отобразить.*/
 
-var timer = makeProfileTimer();
+fetch('https://swapi.dev/api/people/1/')
+    .then(res => res.json(),error => console.error(error))
+    .then(luke => {output_responce('responce_content', luke);});
 
-function makeProfileTimer() {
-    var t0 = performance.now();
-    alert('Замеряем время работы этого alert');
-    var t1 = performance.now();
-    alert('Alert took ' + (t1 - t0) + ' microseconds.');
-}
+const output_responce = (elem,responce)=>{
+    let responce_dom = document.getElementById(elem);
+        responce_dom.innerHTML = "<table class='request_info'><tbody id='responce_tab'></tbody></table>";
+        let responce_tab = document.getElementById("responce_tab");
+        if (Object.keys(responce).length == 0) {
+            responce_tab.innerText = 'Пусто';
+            return;
+        }
 
-// HW 2
-//makeSaver
-//Напишите функцию makeSaver, которая:
-
-var saver = makeSaver(Math.random) //создает функцию-хранилище результата переданной в качестве параметра функции (Math.random 
-// в примере). На этом этапе Math.random НЕ вызывается
-var value1 = saver()              //saver вызывает переданную в makeSaver функцию, запоминает результат и возвращает его
-var value2 = saver()              //saver в дальнейшем просто хранит результат функции, и более НЕ вызывает переданную 
-//в makeSaver функцию;
-value1 === value2                 // всегда true
-
-var saver2 = makeSaver(() => console.log('saved function called') || [null, undefined, false, '', 0, Math.random()][Math.ceil(Math.random() * 6)])
-var value3 = saver2()
-var value4 = saver2()
-
-value3 === value4 // тоже должно быть true
-
-//Таким образом makeSaver решает две задачи:
-//Навсегда сохраняет результат функции.Это актуально, например, 
-//для Math.random.
-//Действует лениво, то есть вызывает Math.random только тогда,
-// когда результат действительно нужен.Если же по 
-//каким - то причинам значение не понадобится, 
-//то Math.random даже не будет вызван
-
-
-
-// HW 3
-//Final Countdown
-//Напишите код, который будет делать обратный ежесекундный 
-//отсчёт в консоли, используя console.log.Используйте 
-//Self Invoked Function для создания замыкания и setTimeout для
-// задержки вывода.Результатом должно быть:
-
-let timer;
-let x = +prompt('Введите число с которого начнется отсчет:', "5")
-finalCountdown();
-function finalCountdown() {
-    console.log(x);
-    --x;
-    if (x < 0) {
-        clearTimeout(timer);
-        console.log('поехали!');
-
-    } else {
-
-        timer = setTimeout(finalCountdown, 1000);
-
-    }
-}
-
-
-
-
-// HW 4
-//Изучите встроенную функцию bind, и сделайте свою версию, 
-//которая позволит определить "значение по умолчанию" не только 
-//для первых параметров, но для любых других, например для 
-//степени в Math.pow:
-//Массив, который идет третьим параметром определяет, 
-//какие поля должны подменяться значением по умолчанию, 
-//а какие - задаваться в последствии(undefined).
-
-const myBind = (func, context, arrWithParams) => {
-    return (...arg) => {
-        func.call(
-            context,
-            ...arrWithParams.map(item => item !== undefined ? item : arg.shift())
-
-        )
-    }
-}
-
-const result = myBind(Math.pow, Math, [undefined, 5]);
-console.log(result(2));
-
-const result = myBind(Math.min, Math, [undefined, 4, undefined, 5, undefined, 8, undefined, 9])
-console.log(result(-1, -5, 3, 15))
-
-///////////////////////////
-
-function myBind(func, context, argsArray) {
-    return (...arg) => {
-        const resArray = argsArray.map((elem) => {
-            if (!elem) {
-                return arg.shift();
+        for (key in responce) {
+            let tr = document.createElement("tr");
+                tr.className = "tr";
+            let tdKey = document.createElement("td");
+                tdKey.className = "td_key";
+                tdKey.innerText = key;
+                tr.append(tdKey);
+            let tdValue = document.createElement("td");
+            tdValue.className = "td_val";
+            if(Array.isArray(responce[key])){
+                if(responce[key].length > 0){
+                    responce[key].map((el)=>{
+                        let analizator = "" + el;
+                        if(analizator.indexOf('http') !== -1) {
+                            tdValue.append(but_creator(el));
+                        } else {
+                            let div = document.createElement("div");
+                            div.className = "td-div";
+                            div.innerText = el;
+                            tdValue.append(div);
+                        }
+                    });
+                }
+            } else {
+                let analizator = "" + responce[key];
+                if(analizator.indexOf('http') !== -1) {
+                    tdValue.append(but_creator(analizator))
+                } else {
+                    tdValue.innerText = responce[key];
+                }
             }
+            tr.append(tdValue);
+        responce_tab.append(tr);
+};
 
-            return elem;
-        });
-        const result = func.apply(context, resArray);
-        console.log(result);
-    }
+let buttonCreator = (link)=>{
+    let button = document.createElement("button");
+    button.className = "link_button";
+    button.onclick = ()=>request_it(link);
+    button.innerText = "перейти";
+    get_name(link, button);
+    return button;
+};
+
+
+let request_it = (path)=>{
+    fetch(path)
+    .then(res => res.json(),error => console.error(error))
+    .then(luke => {
+        output_responce('responce_content',luke);
+    });
+};
+let get_name = (path, el)=>{
+     fetch(path)
+     .then(res => res.json(),error => console.error(error))
+     .then(luke => {
+        el.innerText = "перейти";
+        if("name" in luke){
+            el.innerText - luke.name + ": перейти";
+        }
+        if("title" in luke){
+            el.innerText = luke.title + ": перейти";
+        }
+    });
+};
+
+
+
+/*
+fetch improved
+Расширить функцию отображения:
+Если одно из полей строка или массив.
+Если строки или строка содержат в себе https://swapi.dev/api/
+То выводить вместо текста строки кнопку, при нажатии на которую:
+делается fetch данных по этой ссылке
+функция отображения запускает сама себя(рекурсивно) для отображения новых данных в том же элементе.
+*/
+
+
+
+
+/*myfetch
+Используя XMLHTTPRequest, напишите промисифицированную функцию myfetch, т.е.функцию, которая возвращает промис, и работает схоже с fetch, только в один этап:
+myfetch('https://swapi.dev/api/people/1/')
+    .then(luke => console.log(luke))
+Функция myfetch ожидает что ответ будет в формате JSON(используйте JSON.parse(response.text)) В случае ошибок(request.onerror или request.status не 200) не забудьте вызывать reject
+function myfetch(url) {
+    return new Promise(function (resolve, reject) {
+        const xhr = new XMLHTTPRequest()
+        ///...
+    })
+}*/
+
+function myfetch(url){
+    return new Promise (function (resolve, reject){
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        xhr.onload = () => {
+            if(xhr.status != 200) {
+                reject('Ошибка ${xht.status}: ${xhr.statusText}');
+            } else {
+                let responceObj = JSON.parse(xhr.responseText);
+                resolve(responceObj);
+            }
+        }
+        xhr.onerror = () => reject('Ошибка запроса. ${xhr.statusText}');
+        xhr.send();
+    });
 }
 
-var pow5 = myBind(Math.pow, Math, [undefined, 5]);
-pow5(3);//243
-var cube = myBind(Math.pow, Math, [undefined, 3]);
-cube(4);//64
-var chessMin = myBind(Math.min, Math, [undefined, 4, undefined, 5, undefined, 8, undefined, 9]);
-chessMin(-1, -5, 3, 15);//-5
+myfetch('https://swapi.dev/api/people/1/')
+    .then(luke => console.log(luke), error=> console.error(error));
+
+/*
+race
+Используя Promise.race запустите запрос на API(myfetch) параллельно с delay.По результату определите, что было быстрее, запрос по сети, или определенный интервал времени.Подберите параметр delay так, что бы результат был неизвестен изначально, и при многократных запусках быстрее был то delay, то myfetch.*/
+
+
+let myPromice = myfetch('https://swapi.dev/api/people/1/')
+    .then(luke => luke, error => console.error(error));
+
+let somePromice = delay(Math.floor(900*Math.random()))
+    .then(() => "Wat`s up?")
+Promise.race([somePromice, myPromice]).then((value) => {
+    console.log(value);
+})
+
+function delay(ms){
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve,ms);
+    });
+};
