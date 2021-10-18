@@ -9,14 +9,14 @@ JSON, который нужно отобразить.*/
 
 fetch('https://swapi.dev/api/people/1/')
     .then(res => res.json(),error => console.error(error))
-    .then(luke => {output_responce('responce_content', luke);});
+    .then(luke => {outputResponce('responce_content', luke);});
 
-const output_responce = (elem,responce)=>{
-    let responce_dom = document.getElementById(elem);
-        responce_dom.innerHTML = "<table class='request_info'><tbody id='responce_tab'></tbody></table>";
-        let responce_tab = document.getElementById("responce_tab");
+const outputResponce = (elem,responce)=>{
+    let responceDom = document.getElementById("elem");
+        responceDom.innerHTML = "<table class='request_info'><tbody id='responce_tab'></tbody></table>";
+        let responceTab = document.getElementById("responce_tab");
         if (Object.keys(responce).length == 0) {
-            responce_tab.innerText = 'Пусто';
+            responceTab.innerText = 'Пусто';
             return;
         }
 
@@ -32,9 +32,9 @@ const output_responce = (elem,responce)=>{
             if(Array.isArray(responce[key])){
                 if(responce[key].length > 0){
                     responce[key].map((el)=>{
-                        let analizator = "" + el;
-                        if(analizator.indexOf('http') !== -1) {
-                            tdValue.append(but_creator(el));
+                        let validation = "" + el;
+                        if (validation.indexOf('http') !== -1) {
+                            tdValue.append(buttonCreator(el));
                         } else {
                             let div = document.createElement("div");
                             div.className = "td-div";
@@ -44,9 +44,9 @@ const output_responce = (elem,responce)=>{
                     });
                 }
             } else {
-                let analizator = "" + responce[key];
-                if(analizator.indexOf('http') !== -1) {
-                    tdValue.append(but_creator(analizator))
+                let validation = "" + responce[key];
+                if (validation.indexOf('http') !== -1) {
+                    tdValue.append(buttonCreator(validation))
                 } else {
                     tdValue.innerText = responce[key];
                 }
@@ -54,25 +54,26 @@ const output_responce = (elem,responce)=>{
             tr.append(tdValue);
         responce_tab.append(tr);
 };
+}
 
 let buttonCreator = (link)=>{
     let button = document.createElement("button");
     button.className = "link_button";
-    button.onclick = ()=>request_it(link);
+    button.onclick = ()=>requestIt(link);
     button.innerText = "перейти";
-    get_name(link, button);
+    getName(link, button);
     return button;
 };
 
 
-let request_it = (path)=>{
+let requestIt = (path)=>{
     fetch(path)
     .then(res => res.json(),error => console.error(error))
     .then(luke => {
-        output_responce('responce_content',luke);
+        outputResponce('responce_content',luke);
     });
 };
-let get_name = (path, el)=>{
+let getName = (path, el)=>{
      fetch(path)
      .then(res => res.json(),error => console.error(error))
      .then(luke => {
